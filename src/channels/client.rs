@@ -2,16 +2,16 @@ use std::error::Error;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use base64::{Engine as _, engine::general_purpose};
-use futures_util::{StreamExt, SinkExt, stream};
+use futures_util::{SinkExt, StreamExt, stream};
 use openssl::hash::MessageDigest;
 use openssl::pkey::{PKey, Private};
 use openssl::rsa::Padding;
 use openssl::sign::{RsaPssSaltlen, Signer};
+use tokio::net::TcpStream;
+use tokio::sync::Mutex;
 use tokio_tungstenite::tungstenite::ClientRequestBuilder;
 use tokio_tungstenite::{MaybeTlsStream, WebSocketStream};
 use tokio_tungstenite::{connect_async, tungstenite::Message};
-use tokio::net::TcpStream;
-use tokio::sync::Mutex;
 
 pub struct KalshiWebsocketClient {
     uri: &'static str,
@@ -24,7 +24,7 @@ pub struct KalshiWebsocketClient {
 impl KalshiWebsocketClient {
     pub fn new(uri: &'static str) -> Self {
         KalshiWebsocketClient {
-            uri: uri,            // TODO: make this an environment Enum for demo/prod
+            uri: uri,                        // TODO: make this an environment Enum for demo/prod
             markets: Mutex::new(Vec::new()), // list of markets listening to
             sender: Mutex::new(None),
             receiver: Mutex::new(None),
@@ -38,12 +38,18 @@ impl KalshiWebsocketClient {
         *lock
     }
 
-    async fn set_sender(&self, sender: stream::SplitSink<WebSocketStream<MaybeTlsStream<TcpStream>>, Message>) {
+    async fn set_sender(
+        &self,
+        sender: stream::SplitSink<WebSocketStream<MaybeTlsStream<TcpStream>>, Message>,
+    ) {
         let mut lock = self.sender.lock().await;
         *lock = Some(sender);
     }
-    
-    async fn set_receiver(&self, receiver: stream::SplitStream<WebSocketStream<MaybeTlsStream<TcpStream>>>) {
+
+    async fn set_receiver(
+        &self,
+        receiver: stream::SplitStream<WebSocketStream<MaybeTlsStream<TcpStream>>>,
+    ) {
         let mut lock = self.receiver.lock().await;
         *lock = Some(receiver);
     }
@@ -59,7 +65,9 @@ impl KalshiWebsocketClient {
         }
     }
 
-    pub async fn next_message(&self) -> Option<Result<Message, tokio_tungstenite::tungstenite::Error>>{
+    pub async fn next_message(
+        &self,
+    ) -> Option<Result<Message, tokio_tungstenite::tungstenite::Error>> {
         let mut lock = self.receiver.lock().await;
         let next = lock.as_mut().unwrap().next().await;
         next
@@ -87,7 +95,6 @@ impl KalshiWebsocketClient {
             .with_header("KALSHI-ACCESS-SIGNATURE", encoded_signature)
             .with_header("KALSHI-ACCESS-TIMESTAMP", timestamp))
     }
-
 
     pub async fn connect(
         &self,
@@ -122,16 +129,20 @@ impl KalshiWebsocketClient {
     }
 
     // TODO: make channel and enum
-    pub async fn subscribe(&self, market_ticker: &str, channel: &str) -> Result<(), Box<dyn Error>> {
+    pub async fn subscribe(
+        &self,
+        market_ticker: &str,
+        channel: &str,
+    ) -> Result<(), Box<dyn Error>> {
         // grab next comand message id
         let id = self.get_cmd_id().await;
         let command_string = create_command(id, "subscribe", channel, market_ticker);
         // send message and await response
         self.send_message(command_string).await?;
 
-        Ok(())        
+        Ok(())
     }
-    
+
     pub async fn unsubscribe(&self, _sid: &str) -> Result<(), Box<dyn Error>> {
         Ok(())
     }

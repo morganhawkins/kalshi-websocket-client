@@ -3,8 +3,8 @@ use std::fs;
 use openssl::pkey::PKey;
 use tokio_tungstenite::tungstenite::Message;
 
-use kalshi_orderbook::channels::client::KalshiWebsocketClient;
 use kalshi_orderbook::channels::SocketMessage;
+use kalshi_orderbook::channels::client::KalshiWebsocketClient;
 
 #[tokio::main]
 async fn main() {
@@ -15,7 +15,10 @@ async fn main() {
     let uri = "wss://api.elections.kalshi.com/trade-api/ws/v2";
     let client = KalshiWebsocketClient::new(uri);
     client.connect(pub_key, priv_key).await.unwrap();
-    client.subscribe("KXBTCD-25AUG1218-T120249.99", "orderbook_delta").await.unwrap();
+    client
+        .subscribe("KXBTCD-25AUG1218-T120249.99", "orderbook_delta")
+        .await
+        .unwrap();
 
     std::thread::sleep(std::time::Duration::from_secs(2));
 
@@ -28,6 +31,5 @@ async fn main() {
             }
             _ => println!("Non-Text Message: {message_result:?}"),
         }
-        
     }
 }

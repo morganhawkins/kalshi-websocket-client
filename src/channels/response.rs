@@ -4,7 +4,7 @@ use serde::Deserialize;
 pub struct SubscribedResponse {
     pub r#type: String,
     pub id: u64,
-    pub msg: SubscribedResponseMessage
+    pub msg: SubscribedResponseMessage,
 }
 
 #[derive(Deserialize, Debug)]

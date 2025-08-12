@@ -6,7 +6,7 @@ pub struct TradeUpdate {
     pub r#type: String,
     pub sid: u64,
     pub seq: u64,
-    pub msg: TradeUpdateMessage
+    pub msg: TradeUpdateMessage,
 }
 
 #[derive(Deserialize, Debug)]
@@ -19,5 +19,3 @@ pub struct TradeUpdateMessage {
     taker_side: String,
     ts: u64,
 }
-
-
