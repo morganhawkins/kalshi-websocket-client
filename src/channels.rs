@@ -1,3 +1,4 @@
+pub mod client;
 pub mod orderbook_updates;
 pub mod public_trades;
 
