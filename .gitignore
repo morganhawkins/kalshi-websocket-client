@@ -1,2 +1,5 @@
 /target
+/keys
+/python_examples
 .env
+*DS_Store
