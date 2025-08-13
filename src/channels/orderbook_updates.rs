@@ -29,7 +29,7 @@ pub struct OrderbookDeltaMessage {
     pub market_ticker: String,
     pub market_id: String,
     pub price: u8,
-    pub delta: u64,
+    pub delta: i64,
     pub side: String,
     pub ts: String,
 }

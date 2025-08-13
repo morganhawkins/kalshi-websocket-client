@@ -8,7 +8,7 @@ pub struct SubscribedResponse {
 }
 
 #[derive(Deserialize, Debug)]
-struct SubscribedResponseMessage {
+pub struct SubscribedResponseMessage {
     pub channel: String,
     pub sid: u64,
 }
@@ -21,7 +21,7 @@ pub struct ErrorResponse {
 }
 
 #[derive(Deserialize, Debug)]
-struct ErrorResponseMessage {
+pub struct ErrorResponseMessage {
     pub code: u64,
     pub msg: String,
 }

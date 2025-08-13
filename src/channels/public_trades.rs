@@ -1,4 +1,3 @@
-use crate::channels::Side;
 use serde::Deserialize;
 
 #[derive(Deserialize, Debug)]
@@ -11,11 +10,11 @@ pub struct TradeUpdate {
 
 #[derive(Deserialize, Debug)]
 pub struct TradeUpdateMessage {
-    trade_id: String,
-    market_ticker: String,
-    yes_price: u8,
-    no_price: u8,
-    count: u64,
-    taker_side: String,
-    ts: u64,
+    pub trade_id: String,
+    pub market_ticker: String,
+    pub yes_price: u8,
+    pub no_price: u8,
+    pub count: u64,
+    pub taker_side: String,
+    pub ts: u64,
 }

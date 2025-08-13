@@ -1,6 +1,8 @@
 use std::error::Error;
 use std::time::{SystemTime, UNIX_EPOCH};
 
+use super::SocketMessage;
+
 use base64::{Engine as _, engine::general_purpose};
 use futures_util::{SinkExt, StreamExt, stream};
 use openssl::hash::MessageDigest;
@@ -15,7 +17,6 @@ use tokio_tungstenite::{connect_async, tungstenite::Message};
 
 pub struct KalshiWebsocketClient {
     uri: &'static str,
-    markets: Mutex<Vec<&'static str>>,
     sender: Mutex<Option<stream::SplitSink<WebSocketStream<MaybeTlsStream<TcpStream>>, Message>>>,
     receiver: Mutex<Option<stream::SplitStream<WebSocketStream<MaybeTlsStream<TcpStream>>>>>,
     cmd_id: Mutex<u64>,
@@ -24,8 +25,7 @@ pub struct KalshiWebsocketClient {
 impl KalshiWebsocketClient {
     pub fn new(uri: &'static str) -> Self {
         KalshiWebsocketClient {
-            uri: uri,                        // TODO: make this an environment Enum for demo/prod
-            markets: Mutex::new(Vec::new()), // list of markets listening to
+            uri: uri,
             sender: Mutex::new(None),
             receiver: Mutex::new(None),
             cmd_id: Mutex::new(1_u64),
@@ -65,12 +65,17 @@ impl KalshiWebsocketClient {
         }
     }
 
-    pub async fn next_message(
-        &self,
-    ) -> Option<Result<Message, tokio_tungstenite::tungstenite::Error>> {
+    // TODO: does the reader actually need to be behind Mutex??
+    pub async fn next_message(&self) -> Option<Result<SocketMessage, Box<dyn Error>>> {
         let mut lock = self.receiver.lock().await;
-        let next = lock.as_mut().unwrap().next().await;
-        next
+        let next = lock.as_mut().unwrap().next().await?;
+        match next {
+            Err(e) => Some(Err(e.into())),
+            Ok(msg) => {
+                let socket_message = SocketMessage::from_message(msg);
+                return Some(socket_message);
+            }
+        }
     }
 
     fn create_request(
