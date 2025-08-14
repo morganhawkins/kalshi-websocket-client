@@ -12,8 +12,8 @@ pub struct OrderbookSnapshot {
 pub struct OrderbookSnapshotMessage {
     pub market_ticker: String,
     pub market_id: String,
-    pub yes: Vec<(u8, u64)>,
-    pub no: Vec<(u8, u64)>,
+    pub yes: Option<Vec<(u8, u64)>>,
+    pub no: Option<Vec<(u8, u64)>>,
 }
 
 #[derive(Deserialize, Debug)]

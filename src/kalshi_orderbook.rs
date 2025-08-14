@@ -20,14 +20,26 @@ impl KalshiOrderbook {
         let mut no_book = [0i64; 99];
         // copy values from snapshot into liquidity array
         let mut idx: usize;
-        for (price, quant) in snapshot.msg.yes {
-            idx = price as usize - 1usize;
-            yes_book[idx] += quant as i64;
-        }
-        for (price, quant) in snapshot.msg.no {
-            idx = (100 - price as usize) - 1usize;
-            no_book[idx] += quant as i64;
-        }
+        // if snapshot has a yes field, generate bids from this
+        match snapshot.msg.yes {
+            Some(bids) => {
+                for (price, quant) in bids {
+                    idx = (price as usize) - 1usize;
+                    yes_book[idx] += quant as i64;
+                }
+            }
+            None => (),
+        };
+        // if snapshot has a no field, generate asks from this
+        match snapshot.msg.no {
+            Some(asks) => {
+                for (price, quant) in asks {
+                    idx = (100 - price as usize) - 1usize;
+                    no_book[idx] += quant as i64;
+                }
+            }
+            None => (),
+        };
         // return copied
         Self{
             bid_orders: yes_book,
@@ -52,7 +64,7 @@ impl KalshiOrderbook {
                 self.delta_bid(message.msg.price as usize, message.msg.delta);
             }
             "no" => {
-                self.delta_ask(message.msg.price as usize, message.msg.delta);
+                self.delta_ask(100 - message.msg.price as usize, message.msg.delta);
             }
             _ => {
                 panic!("orderbook delta message has side not in [yes, no]");

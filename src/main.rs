@@ -14,7 +14,7 @@ async fn main() {
     let client = KalshiWebsocketClient::new(uri);
     client.connect(pub_key, priv_key).await.unwrap();
     client
-        .subscribe("KXBTCD-25AUG1417-T123499.99", "orderbook_delta")
+        .subscribe("KXETHD-25AUG1412-T4599.99", "orderbook_delta")
         .await
         .unwrap();
     let mut book = KalshiOrderbook::new();
@@ -29,10 +29,11 @@ async fn main() {
                     
                 }
                 SocketMessage::OrderbookDelta(delta) => {
-                    println!("{delta:?}");
+                    // println!("{delta:?}");
                     book.digest_message(delta);
                 }
                 _ => {
+                    println!("{message:?}");
                     
                 }
             }
@@ -40,9 +41,7 @@ async fn main() {
                 println!("{e:?}");
             }
         }
-
-        book.print_book();
-        
+        book.print_book();        
     }
 
 
