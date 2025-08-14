@@ -1,2 +1,2 @@
-pub mod channels;
+pub mod kalshi_channels;
 pub mod kalshi_orderbook;

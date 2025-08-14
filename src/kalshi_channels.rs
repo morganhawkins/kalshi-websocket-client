@@ -7,7 +7,7 @@ pub mod public_trades;
 pub mod response;
 
 #[derive(Debug)]
-pub enum SocketMessage {
+pub enum KalshiSocketMessage {
     // Textual messages
     SubscribedResponse(response::SubscribedResponse), // response to a sent message indicating success
     ErrorResponse(response::ErrorResponse), // response to a sent message indicating failure
@@ -23,7 +23,7 @@ pub enum SocketMessage {
     Close(Option<tungstenite::protocol::frame::CloseFrame>),
 }
 
-impl SocketMessage {
+impl KalshiSocketMessage {
     pub fn from_message(s: tungstenite::Message) -> Result<Self, Box<dyn Error>> {
         match s {
             tungstenite::Message::Text(text) => Self::from_textual_message(text.to_string()),
@@ -35,24 +35,24 @@ impl SocketMessage {
         }
     }
 
-    fn from_textual_message(s: String) -> Result<SocketMessage, Box<dyn Error>> {
+    fn from_textual_message(s: String) -> Result<KalshiSocketMessage, Box<dyn Error>> {
         let msg_type = determine_type(&s.clone()).ok_or("could not determine message type")?;
         let socket_message = match msg_type.as_str() {
             "subscribed" => {
                 let inner: response::SubscribedResponse = serde_json::from_str(&s)?;
-                SocketMessage::SubscribedResponse(inner)
+                KalshiSocketMessage::SubscribedResponse(inner)
             }
             "orderbook_snapshot" => {
                 let inner: orderbook_updates::OrderbookSnapshot = serde_json::from_str(&s)?;
-                SocketMessage::OrderbookSnapshot(inner)
+                KalshiSocketMessage::OrderbookSnapshot(inner)
             }
             "orderbook_delta" => {
                 let inner: orderbook_updates::OrderbookDelta = serde_json::from_str(&s)?;
-                SocketMessage::OrderbookDelta(inner)
+                KalshiSocketMessage::OrderbookDelta(inner)
             }
             "trade" => {
                 let inner: public_trades::TradeUpdate = serde_json::from_str(&s)?;
-                SocketMessage::TradeUpdate(inner)
+                KalshiSocketMessage::TradeUpdate(inner)
             }
             _ => return Err(format!("unrecognized textual message type {s}").into()),
         };

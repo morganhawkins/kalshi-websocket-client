@@ -1,5 +1,5 @@
-use super::channels::orderbook_updates::OrderbookDelta;
-use super::channels::orderbook_updates::OrderbookSnapshot;
+use super::kalshi_channels::orderbook_updates::OrderbookDelta;
+use super::kalshi_channels::orderbook_updates::OrderbookSnapshot;
 
 #[derive(Debug)]
 pub struct KalshiOrderbook {

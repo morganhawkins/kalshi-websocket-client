@@ -1,5 +1,5 @@
-use kalshi_orderbook::channels::SocketMessage;
-use kalshi_orderbook::channels::client::KalshiWebsocketClient;
+use kalshi_orderbook::kalshi_channels::KalshiSocketMessage;
+use kalshi_orderbook::kalshi_channels::client::KalshiWebsocketClient;
 use kalshi_orderbook::kalshi_orderbook::KalshiOrderbook;
 use openssl::pkey::PKey;
 use std::fs;
@@ -14,7 +14,7 @@ async fn main() {
     let client = KalshiWebsocketClient::new(uri);
     client.connect(pub_key, priv_key).await.unwrap();
     client
-        .subscribe("KXETHD-25AUG1412-T4599.99", "orderbook_delta")
+        .subscribe("KXBTCD-25AUG1412-T118249.99", "orderbook_delta")
         .await
         .unwrap();
     let mut book = KalshiOrderbook::new();
@@ -23,11 +23,11 @@ async fn main() {
         // println!("{message_result:?}");
         match message_result {
             Ok(message) => match message {
-                SocketMessage::OrderbookSnapshot(snapshot) => {
+                KalshiSocketMessage::OrderbookSnapshot(snapshot) => {
                     println!("{snapshot:?}");
                     book = KalshiOrderbook::from_snapshot(snapshot);
                 }
-                SocketMessage::OrderbookDelta(delta) => {
+                KalshiSocketMessage::OrderbookDelta(delta) => {
                     // println!("{delta:?}");
                     book.digest_message(delta);
                 }
