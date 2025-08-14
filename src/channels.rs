@@ -6,7 +6,6 @@ pub mod orderbook_updates;
 pub mod public_trades;
 pub mod response;
 
-
 #[derive(Debug)]
 pub enum SocketMessage {
     // Textual messages

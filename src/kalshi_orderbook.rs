@@ -3,15 +3,15 @@ use super::channels::orderbook_updates::OrderbookSnapshot;
 
 #[derive(Debug)]
 pub struct KalshiOrderbook {
-    pub bid_orders: [i64;99],
-    pub ask_orders: [i64;99],
+    pub bid_orders: [i64; 99],
+    pub ask_orders: [i64; 99],
 }
 
 impl KalshiOrderbook {
     pub fn new() -> Self {
-        Self { 
-            bid_orders: [0_i64; 99], 
-            ask_orders: [0_i64; 99], 
+        Self {
+            bid_orders: [0_i64; 99],
+            ask_orders: [0_i64; 99],
         }
     }
 
@@ -41,21 +41,20 @@ impl KalshiOrderbook {
             None => (),
         };
         // return copied
-        Self{
+        Self {
             bid_orders: yes_book,
             ask_orders: no_book,
         }
-
     }
 
     // change quantity at bid price
     fn delta_bid(&mut self, price: usize, quant_delta: i64) {
-        self.bid_orders[price-1usize] += quant_delta;
+        self.bid_orders[price - 1usize] += quant_delta;
     }
 
     // change quantity at ask price
     fn delta_ask(&mut self, price: usize, quant_delta: i64) {
-        self.ask_orders[price-1usize] += quant_delta;
+        self.ask_orders[price - 1usize] += quant_delta;
     }
 
     pub fn digest_message(&mut self, message: OrderbookDelta) {
@@ -76,15 +75,14 @@ impl KalshiOrderbook {
         println!("\n\n---BOOK---");
         for (price, quant) in self.ask_orders.iter().enumerate().rev() {
             if *quant != 0 {
-                println!("{}, {quant}", price+1);
+                println!("{}, {quant}", price + 1);
             }
         }
         println!("------");
         for (price, quant) in self.bid_orders.iter().enumerate().rev() {
             if *quant != 0 {
-                println!("{}, {quant}", price+1);
+                println!("{}, {quant}", price + 1);
             }
         }
     }
-
 }

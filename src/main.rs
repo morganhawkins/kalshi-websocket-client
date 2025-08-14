@@ -1,8 +1,8 @@
-use std::fs;
-use openssl::pkey::PKey;
-use kalshi_orderbook::channels::client::KalshiWebsocketClient;
 use kalshi_orderbook::channels::SocketMessage;
+use kalshi_orderbook::channels::client::KalshiWebsocketClient;
 use kalshi_orderbook::kalshi_orderbook::KalshiOrderbook;
+use openssl::pkey::PKey;
+use std::fs;
 
 #[tokio::main]
 async fn main() {
@@ -26,7 +26,6 @@ async fn main() {
                 SocketMessage::OrderbookSnapshot(snapshot) => {
                     println!("{snapshot:?}");
                     book = KalshiOrderbook::from_snapshot(snapshot);
-                    
                 }
                 SocketMessage::OrderbookDelta(delta) => {
                     // println!("{delta:?}");
@@ -34,17 +33,12 @@ async fn main() {
                 }
                 _ => {
                     println!("{message:?}");
-                    
                 }
-            }
+            },
             Err(e) => {
                 println!("{e:?}");
             }
         }
-        book.print_book();        
+        book.print_book();
     }
-
-
-
-
 }
