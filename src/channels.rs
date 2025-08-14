@@ -51,6 +51,10 @@ impl SocketMessage {
                 let inner: orderbook_updates::OrderbookDelta = serde_json::from_str(&s)?;
                 SocketMessage::OrderbookDelta(inner)
             }
+            "trade" => {
+                let inner: public_trades::TradeUpdate = serde_json::from_str(&s)?;
+                SocketMessage::TradeUpdate(inner)
+            }
             _ => return Err(format!("unrecognized textual message type {s}").into()),
         };
         Ok(socket_message)
