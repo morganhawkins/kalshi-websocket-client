@@ -150,6 +150,7 @@ impl CoinbaseWebsocketClient {
         // creating current timestamp for signing
         let timestamp_num = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
         let timestamp = format!("{timestamp_num}");
+
         // create signer & signature(should have to only do this once so we drop at end of method)
         // let mut signer = Signer::new(MessageDigest::sha256(), &priv_key_ref)?;
         // signer.set_rsa_padding(Padding::PKCS1_PSS)?;
