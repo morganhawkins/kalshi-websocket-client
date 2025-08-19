@@ -4,7 +4,7 @@
 
 - Next, build the binaries with the command 
     ```{Bash}
-    cargo build-release
+    cargo build --release
     ```
 
 - To recreate a kalshi orderbook live, run the command
