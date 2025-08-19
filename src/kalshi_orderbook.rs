@@ -20,8 +20,8 @@ impl KalshiOrderbook {
         let mut no_book = [0i64; 99];
         // copy values from snapshot into liquidity array
         let mut idx: usize;
-        // if snapshot has a yes field, generate bids from this
         match snapshot.msg.yes {
+            // if snapshot has a yes field, generate bids from this
             Some(bids) => {
                 for (price, quant) in bids {
                     idx = (price as usize) - 1usize;
@@ -30,8 +30,8 @@ impl KalshiOrderbook {
             }
             None => (),
         };
-        // if snapshot has a no field, generate asks from this
         match snapshot.msg.no {
+            // if snapshot has a no field, generate asks from this
             Some(asks) => {
                 for (price, quant) in asks {
                     idx = (100 - price as usize) - 1usize;

@@ -22,8 +22,17 @@ pub struct KalshiWebsocketClient {
     cmd_id: Mutex<u64>,
 }
 
+pub enum Environment {
+    Prod,
+    Demo,
+}
+
 impl KalshiWebsocketClient {
-    pub fn new(uri: &'static str) -> Self {
+    pub fn new(env: Environment) -> Self {
+        let uri = match env {
+            Environment::Demo => "wss://demo-api.elections.kalshi.com/trade-api/ws/v2",
+            Environment::Prod => "wss://api.elections.kalshi.com/trade-api/ws/v2",
+        };
         KalshiWebsocketClient {
             uri: uri,
             sender: Mutex::new(None),
