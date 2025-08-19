@@ -1,4 +1,4 @@
-# Quick Start Example Programs
+# Quick Start
 - Generate a public private api key pair and store save in files located at 
 `<project_root>/keys/kalsh-key.pem` and `<project_root>/keys/kalsh-key.pem`
 
