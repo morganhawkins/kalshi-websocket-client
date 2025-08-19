@@ -1,6 +1,6 @@
-use serde::Deserialize;
+use serde::{Serialize, Deserialize};
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct TradeUpdate {
     pub r#type: String,
     pub sid: u64,
@@ -8,7 +8,7 @@ pub struct TradeUpdate {
     pub msg: TradeUpdateMessage,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct TradeUpdateMessage {
     pub trade_id: String,
     pub market_ticker: String,

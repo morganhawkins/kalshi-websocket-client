@@ -1,6 +1,6 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct OrderbookSnapshot {
     pub r#type: String,
     pub sid: u64,
@@ -8,7 +8,7 @@ pub struct OrderbookSnapshot {
     pub msg: OrderbookSnapshotMessage,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct OrderbookSnapshotMessage {
     pub market_ticker: String,
     pub market_id: String,
@@ -16,7 +16,7 @@ pub struct OrderbookSnapshotMessage {
     pub no: Option<Vec<(u8, u64)>>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct OrderbookDelta {
     pub r#type: String,
     pub sid: u64,
@@ -24,7 +24,7 @@ pub struct OrderbookDelta {
     pub msg: OrderbookDeltaMessage,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct OrderbookDeltaMessage {
     pub market_ticker: String,
     pub market_id: String,
