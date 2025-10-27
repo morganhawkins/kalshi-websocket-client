@@ -1,7 +1,7 @@
 use std::error::Error;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use super::KalshiSocketMessage;
+use super::message::KalshiSocketMessage;
 
 use base64::{Engine as _, engine::general_purpose};
 use futures_util::{SinkExt, StreamExt, stream};

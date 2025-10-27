@@ -1,5 +1,5 @@
-use super::kalshi_channels::orderbook_updates::OrderbookDelta;
-use super::kalshi_channels::orderbook_updates::OrderbookSnapshot;
+use super::websocket::message::orderbook_update::OrderbookDelta;
+use super::websocket::message::orderbook_update::OrderbookSnapshot;
 
 #[derive(Debug)]
 pub struct KalshiOrderbook {
