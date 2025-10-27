@@ -1,6 +1,5 @@
 use std::error::Error;
 use std::sync::Arc;
-use std::sync::atomic::AtomicU64;
 use tokio::sync::Mutex;
 
 use openssl::pkey::PKey;
