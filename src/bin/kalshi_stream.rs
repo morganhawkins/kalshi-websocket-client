@@ -1,4 +1,4 @@
-use kalshi_orderbook::kalshi_channels::client::{KalshiWebsocketClient, Environment};
+use kalshi_orderbook::websocket::client::{KalshiWebsocketClient, Environment};
 use openssl::pkey::PKey;
 use std::{fs, env};
 

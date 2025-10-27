@@ -1,4 +1,4 @@
-use kalshi_orderbook::kalshi_channels::{client::KalshiWebsocketClient, client::Environment, KalshiSocketMessage};
+use kalshi_orderbook::websocket::{client::KalshiWebsocketClient, client::Environment, message::KalshiSocketMessage};
 use openssl::{pkey::PKey};
 use std::{fs, env};
 use std::io::Write;
@@ -39,6 +39,13 @@ async fn main() {
                 KalshiSocketMessage::OrderbookDelta(delta) => {
                     let serialized_delta = serde_json::to_string(&delta);
                     if let Ok(string_struct) = serialized_delta {
+                        let write_string = format!("{string_struct}\n");
+                        record_file.write_all(write_string.as_bytes()).unwrap();
+                    }
+                }
+                KalshiSocketMessage::TradeUpdate(trade) => {
+                    let serialized_trade = serde_json::to_string(&trade);
+                    if let Ok(string_struct) = serialized_trade {
                         let write_string = format!("{string_struct}\n");
                         record_file.write_all(write_string.as_bytes()).unwrap();
                     }
