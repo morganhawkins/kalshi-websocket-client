@@ -1,7 +1,6 @@
 use crate::websocket::message::orderbook_update::OrderbookDelta;
 use crate::websocket::message::orderbook_update::OrderbookSnapshot;
 
-#[derive(Debug)]
 pub struct KalshiOrderbook {
     pub bid_orders: [i64; 99],
     pub ask_orders: [i64; 99],
@@ -102,5 +101,28 @@ impl KalshiOrderbook {
                 println!("{}, {quant}", price + 1);
             }
         }
+    }
+}
+
+
+impl std::fmt::Debug for KalshiOrderbook {
+    fn fmt(&self, _: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
+        println!("\n");
+        for (price_idx, quantity) in self.ask_orders.iter().enumerate().rev() {
+            let price = price_idx + 1;
+            if *quantity != 0 {
+                println!("{price} - {quantity}");
+            }
+        }
+        println!("-------");
+        for (price_idx, quantity) in self.bid_orders.iter().enumerate().rev() {
+            let price = price_idx + 1;
+            if *quantity != 0 {
+                println!("{price} - {quantity}");
+            }
+        }
+        
+        println!("\n");
+        return Ok(());
     }
 }
