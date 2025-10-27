@@ -23,7 +23,7 @@ pub enum KalshiSocketMessage {
 }
 
 impl KalshiSocketMessage {
-    pub fn from_message(s: tungstenite::Message) -> Result<Self, Box<dyn Error>> {
+    pub fn from_message(s: tungstenite::Message) -> Result<Self, Box<dyn Error + Send + Sync>> {
         match s {
             tungstenite::Message::Text(text) => Self::from_textual_message(text.to_string()),
             tungstenite::Message::Ping(_) => Ok(Self::Ping),
@@ -34,7 +34,7 @@ impl KalshiSocketMessage {
         }
     }
 
-    fn from_textual_message(s: String) -> Result<KalshiSocketMessage, Box<dyn Error>> {
+    fn from_textual_message(s: String) -> Result<KalshiSocketMessage, Box<dyn Error + Send + Sync>> {
         let msg_type = determine_type(&s.clone()).ok_or("could not determine message type")?;
         let socket_message = match msg_type.as_str() {
             "subscribed" => {

@@ -63,7 +63,7 @@ impl KalshiWebsocketClient {
         *lock = Some(receiver);
     }
 
-    async fn send_message(&self, message: String) -> Result<(), Box<dyn Error>> {
+    async fn send_message(&self, message: String) -> Result<(), Box<dyn Error + Send + Sync>> {
         let tung_message = tokio_tungstenite::tungstenite::Message::text(message);
         let mut lock = self.sender.lock().await;
         // TODO: pattern match this and clean True
@@ -75,7 +75,7 @@ impl KalshiWebsocketClient {
     }
 
     // TODO: does the reader actually need to be behind Mutex??
-    pub async fn next_message(&self) -> Option<Result<KalshiSocketMessage, Box<dyn Error>>> {
+    pub async fn next_message(&self) -> Option<Result<KalshiSocketMessage, Box<dyn Error + Send+ Sync>>> {
         let mut lock = self.receiver.lock().await;
         let next = lock.as_mut().unwrap().next().await?;
         match next {
@@ -93,7 +93,7 @@ impl KalshiWebsocketClient {
         method: &'static str,
         path: &'static str,
         pub_key: &str,
-    ) -> Result<ClientRequestBuilder, Box<dyn Error>> {
+    ) -> Result<ClientRequestBuilder, Box<dyn Error + Send + Sync>> {
         // creating current timestamp for signing
         let timestamp_num = SystemTime::now().duration_since(UNIX_EPOCH)?.as_millis();
         let timestamp = format!("{timestamp_num}");
@@ -114,7 +114,7 @@ impl KalshiWebsocketClient {
         &self,
         pub_key: &str,
         priv_key: PKey<Private>,
-    ) -> Result<(), Box<dyn Error>> {
+    ) -> Result<(), Box<dyn Error + Send + Sync>> {
         // create signer (should have to only do this once so we drop at end of method)
         let mut signer = Signer::new(MessageDigest::sha256(), &priv_key)?;
         signer.set_rsa_padding(Padding::PKCS1_PSS)?;
@@ -147,7 +147,7 @@ impl KalshiWebsocketClient {
         &self,
         market_ticker: &str,
         channel: &str,
-    ) -> Result<(), Box<dyn Error>> {
+    ) -> Result<(), Box<dyn Error + Send + Sync>> {
         // grab next comand message id
         let id = self.get_cmd_id().await;
         let command_string = create_command(id, "subscribe", channel, market_ticker);
