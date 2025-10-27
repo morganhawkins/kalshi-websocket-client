@@ -20,31 +20,49 @@ impl KalshiOrderbook {
         let mut no_book = [0i64; 99];
         // copy values from snapshot into liquidity array
         let mut idx: usize;
-        match snapshot.msg.yes {
-            // if snapshot has a yes field, generate bids from this
-            Some(bids) => {
-                for (price, quant) in bids {
-                    idx = (price as usize) - 1usize;
-                    yes_book[idx] += quant as i64;
-                }
+        if let Some(bids) = snapshot.msg.yes {
+            for (price, quant) in bids {
+                idx = (price as usize) - 1usize;
+                yes_book[idx] += quant as i64;
             }
-            None => (),
-        };
-        match snapshot.msg.no {
-            // if snapshot has a no field, generate asks from this
-            Some(asks) => {
-                for (price, quant) in asks {
-                    idx = (100 - price as usize) - 1usize;
-                    no_book[idx] += quant as i64;
-                }
+
+        }
+        if let Some(asks) = snapshot.msg.no {
+            for (price, quant) in asks {
+                idx = (100 - price as usize) - 1usize;
+                no_book[idx] += quant as i64;
             }
-            None => (),
-        };
+        }
         // return copied
         Self {
             bid_orders: yes_book,
             ask_orders: no_book,
         }
+    }
+
+    pub fn set_snapshot(&mut self, snapshot: OrderbookSnapshot){
+        let mut yes_book = [0i64; 99];
+        let mut no_book = [0i64; 99];
+        
+        // copy values from snapshot into liquidity array
+        let mut idx: usize;
+        if let Some(bids) = snapshot.msg.yes {
+            for (price, quant) in bids {
+                idx = (price as usize) - 1usize;
+                yes_book[idx] += quant as i64;
+            }
+
+        }
+        if let Some(asks) = snapshot.msg.no {
+            for (price, quant) in asks {
+                idx = (100 - price as usize) - 1usize;
+                no_book[idx] += quant as i64;
+            }
+        }
+        
+        self.bid_orders = yes_book;
+        self.ask_orders = no_book;
+        
     }
 
     // change quantity at bid price
