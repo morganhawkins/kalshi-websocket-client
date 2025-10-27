@@ -13,7 +13,7 @@ async fn main() {
     let priv_key = PKey::private_key_from_pem(priv_key_string.as_bytes()).unwrap();
 
     let client = KalshiWebsocketClient::new(Environment::Prod);
-    client.connect(pub_key, priv_key).await.unwrap();
+    client.connect(pub_key.as_str(), priv_key).await.unwrap();
     client.subscribe(ticker, channel).await.unwrap();
 
     while let Some(message_result) = client.next_message().await {

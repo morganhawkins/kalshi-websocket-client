@@ -1,6 +1,4 @@
-use kalshi_orderbook::kalshi_orderbook::KalshiOrderbook;
-use kalshi_orderbook::websocket::client::{Environment, KalshiWebsocketClient};
-use kalshi_orderbook::websocket::message::KalshiSocketMessage;
+use kalshi_orderbook::orderbook::connected_orderbook::ConnectedOrderbook;
 use openssl::pkey::PKey;
 use std::{env, fs};
 
@@ -10,32 +8,19 @@ async fn main() {
     let ticker = &args[1];
 
     let pub_key = fs::read_to_string("keys/kalshi-key-pub.pem").unwrap();
-    let priv_key_string = fs::read_to_string("keys/kalshi-key.pem").unwrap();
-    let priv_key = PKey::private_key_from_pem(priv_key_string.as_bytes()).unwrap();
+    let priv_key = fs::read_to_string("keys/kalshi-key.pem").unwrap();
 
-    let client = KalshiWebsocketClient::new(Environment::Prod);
-    client.connect(pub_key, priv_key).await.unwrap();
-    client.subscribe(ticker, "orderbook_delta").await.unwrap();
-    let mut book = KalshiOrderbook::new();
+    let conn_book = ConnectedOrderbook::new(
+        ticker.as_str(), 
+        pub_key.as_str(), 
+        priv_key.as_str()
+    ).unwrap();
 
-    while let Some(message_result) = client.next_message().await {
-        match message_result {
-            Ok(message) => match message {
-                KalshiSocketMessage::OrderbookSnapshot(snapshot) => {
-                    println!("{snapshot:?}");
-                    book = KalshiOrderbook::from_snapshot(snapshot);
-                }
-                KalshiSocketMessage::OrderbookDelta(delta) => {
-                    book.digest_message(delta);
-                }
-                _ => {
-                    println!("{message:?}");
-                }
-            },
-            Err(e) => {
-                println!("{e:?}");
-            }
-        }
-        book.print_book();
-    }
+    let handle = conn_book.listen().unwrap();
+
+    tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
+    println!("{:?}", conn_book);
+    tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
+    println!("{:?}", conn_book);
+    tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
 }
