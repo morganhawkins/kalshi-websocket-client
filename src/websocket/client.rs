@@ -92,7 +92,7 @@ impl KalshiWebsocketClient {
         signer: &mut Signer,
         method: &'static str,
         path: &'static str,
-        pub_key: String,
+        pub_key: &str,
     ) -> Result<ClientRequestBuilder, Box<dyn Error>> {
         // creating current timestamp for signing
         let timestamp_num = SystemTime::now().duration_since(UNIX_EPOCH)?.as_millis();
@@ -112,7 +112,7 @@ impl KalshiWebsocketClient {
 
     pub async fn connect(
         &self,
-        pub_key: String,
+        pub_key: &str,
         priv_key: PKey<Private>,
     ) -> Result<(), Box<dyn Error>> {
         // create signer (should have to only do this once so we drop at end of method)

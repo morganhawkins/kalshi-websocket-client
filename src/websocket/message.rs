@@ -1,7 +1,6 @@
 use std::{error::Error, str::FromStr};
 use tokio_tungstenite::tungstenite;
 
-
 pub mod orderbook_update;
 pub mod public_trade;
 pub mod response;

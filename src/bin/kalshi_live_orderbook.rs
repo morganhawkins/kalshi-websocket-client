@@ -1,8 +1,8 @@
-use kalshi_orderbook::websocket::client::{KalshiWebsocketClient, Environment};
-use kalshi_orderbook::websocket::message::KalshiSocketMessage;
 use kalshi_orderbook::kalshi_orderbook::KalshiOrderbook;
+use kalshi_orderbook::websocket::client::{Environment, KalshiWebsocketClient};
+use kalshi_orderbook::websocket::message::KalshiSocketMessage;
 use openssl::pkey::PKey;
-use std::{fs, env};
+use std::{env, fs};
 
 #[tokio::main]
 async fn main() {
@@ -15,10 +15,7 @@ async fn main() {
 
     let client = KalshiWebsocketClient::new(Environment::Prod);
     client.connect(pub_key, priv_key).await.unwrap();
-    client
-        .subscribe(ticker, "orderbook_delta")
-        .await
-        .unwrap();
+    client.subscribe(ticker, "orderbook_delta").await.unwrap();
     let mut book = KalshiOrderbook::new();
 
     while let Some(message_result) = client.next_message().await {
@@ -42,4 +39,3 @@ async fn main() {
         book.print_book();
     }
 }
-

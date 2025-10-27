@@ -1,6 +1,6 @@
-use kalshi_orderbook::websocket::client::{KalshiWebsocketClient, Environment};
+use kalshi_orderbook::websocket::client::{Environment, KalshiWebsocketClient};
 use openssl::pkey::PKey;
-use std::{fs, env};
+use std::{env, fs};
 
 #[tokio::main]
 async fn main() {
@@ -14,20 +14,16 @@ async fn main() {
 
     let client = KalshiWebsocketClient::new(Environment::Prod);
     client.connect(pub_key, priv_key).await.unwrap();
-    client
-        .subscribe(ticker, channel)
-        .await
-        .unwrap();
+    client.subscribe(ticker, channel).await.unwrap();
 
     while let Some(message_result) = client.next_message().await {
         match message_result {
             Ok(message) => {
-                    println!("{message:?}");
-            },
+                println!("{message:?}");
+            }
             Err(e) => {
                 println!("{e:?}");
             }
         }
     }
 }
-
