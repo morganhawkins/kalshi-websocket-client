@@ -1,5 +1,4 @@
 use kalshi_orderbook::orderbook::connected_orderbook::ConnectedOrderbook;
-use openssl::pkey::PKey;
 use std::{env, fs};
 
 #[tokio::main]
@@ -16,11 +15,11 @@ async fn main() {
         priv_key.as_str()
     ).unwrap();
 
-    let handle = conn_book.listen().unwrap();
+    conn_book.listen().unwrap();
 
-    tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
-    println!("{:?}", conn_book);
-    tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
-    println!("{:?}", conn_book);
-    tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
+    loop {
+        println!("\n\n\n\n\n\n\n\n\n\n\n\n\n");
+        println!("{:?}", conn_book);
+        tokio::time::sleep(tokio::time::Duration::from_millis(50)).await;
+    }
 }
