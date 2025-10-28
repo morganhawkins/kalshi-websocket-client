@@ -122,7 +122,6 @@ impl std::fmt::Debug for KalshiOrderbook {
             }
         }
         
-        println!("\n");
         return Ok(());
     }
 }
