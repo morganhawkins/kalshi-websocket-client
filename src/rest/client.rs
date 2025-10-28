@@ -75,7 +75,33 @@ impl RestClient <'_> {
         let base_req = self.client
             .get(endpoint)
             .header("Content-Type", "application/json")
-            .header("KALSHI-ACCESS-KEY", self.pub_key.as_str())
+            .header("KALSHI-ACCESS-KEY", self.pub_key.clone())
+            .header("KALSHI-ACCESS-SIGNATURE", encoded_signature)
+            .header("KALSHI-ACCESS-TIMESTAMP", timestamp);
+        
+        Ok(base_req)
+    }
+
+
+    fn base_post_request(
+        &self,
+        path: &str
+    ) -> Result<RequestBuilder, Box<dyn Error>> {
+        let timestamp_num = SystemTime::now().duration_since(UNIX_EPOCH)?.as_millis();
+        let timestamp = format!("{timestamp_num}");
+        // concat info to create doc to sign
+        let message = format!("{timestamp}POST{path}");
+        // sign doc and format as base64 string
+        self.signer.borrow_mut().update(message.as_bytes())?;
+        let signature = self.signer.borrow().sign_to_vec()?;
+        let encoded_signature = general_purpose::STANDARD.encode(&signature);
+        // concat base endpoint and path
+        let endpoint = self.uri.clone() + path;
+        
+        let base_req = self.client
+            .post(endpoint)
+            .header("Content-Type", "application/json")
+            .header("KALSHI-ACCESS-KEY", self.pub_key.clone())
             .header("KALSHI-ACCESS-SIGNATURE", encoded_signature)
             .header("KALSHI-ACCESS-TIMESTAMP", timestamp);
         
