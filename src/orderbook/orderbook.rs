@@ -24,7 +24,6 @@ impl KalshiOrderbook {
                 idx = (price as usize) - 1usize;
                 yes_book[idx] += quant as i64;
             }
-
         }
         if let Some(asks) = snapshot.msg.no {
             for (price, quant) in asks {
@@ -39,10 +38,10 @@ impl KalshiOrderbook {
         }
     }
 
-    pub fn set_snapshot(&mut self, snapshot: OrderbookSnapshot){
+    pub fn set_snapshot(&mut self, snapshot: OrderbookSnapshot) {
         let mut yes_book = [0i64; 99];
         let mut no_book = [0i64; 99];
-        
+
         // copy values from snapshot into liquidity array
         let mut idx: usize;
         if let Some(bids) = snapshot.msg.yes {
@@ -50,7 +49,6 @@ impl KalshiOrderbook {
                 idx = (price as usize) - 1usize;
                 yes_book[idx] += quant as i64;
             }
-
         }
         if let Some(asks) = snapshot.msg.no {
             for (price, quant) in asks {
@@ -58,10 +56,9 @@ impl KalshiOrderbook {
                 no_book[idx] += quant as i64;
             }
         }
-        
+
         self.bid_orders = yes_book;
         self.ask_orders = no_book;
-        
     }
 
     // change quantity at bid price
@@ -104,7 +101,6 @@ impl KalshiOrderbook {
     }
 }
 
-
 impl std::fmt::Debug for KalshiOrderbook {
     fn fmt(&self, _: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
         println!("\n");
@@ -121,7 +117,7 @@ impl std::fmt::Debug for KalshiOrderbook {
                 println!("{price} - {quantity}");
             }
         }
-        
+
         return Ok(());
     }
 }

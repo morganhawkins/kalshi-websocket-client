@@ -13,17 +13,14 @@ pub struct ConnectedOrderbook {
     pub_key: String,
     priv_key: String,
     pub ticker: String,
-
 }
 
 impl ConnectedOrderbook {
     pub fn new(ticker: &str, pub_key: &str, priv_key: &str) -> Result<Self, Box<dyn Error>> {
         // construct private key object from private key String
 
-        let book = Arc::new(Mutex::new(
-            KalshiOrderbook::new()
-        ));
-        
+        let book = Arc::new(Mutex::new(KalshiOrderbook::new()));
+
         Ok(ConnectedOrderbook {
             book: book,
             pub_key: pub_key.to_string(),
@@ -32,25 +29,29 @@ impl ConnectedOrderbook {
         })
     }
 
-    pub fn listen(&self) -> Result<tokio::task::JoinHandle<Result<(), Box<dyn Error + Send + Sync>>>, Box<dyn Error>>{
+    pub fn listen(
+        &self,
+    ) -> Result<tokio::task::JoinHandle<Result<(), Box<dyn Error + Send + Sync>>>, Box<dyn Error>>
+    {
         let priv_key = self.priv_key.clone();
         let pub_key = self.pub_key.clone();
         let ticker = self.ticker.clone();
         let book_clone = self.book.clone();
-        
-        let handle: tokio::task::JoinHandle<Result<(), Box<dyn Error + Send + Sync>>> = tokio::spawn(
-                Self::background_update(pub_key, priv_key, ticker, book_clone)
-        );
 
-        return Ok(handle)
+        let handle: tokio::task::JoinHandle<Result<(), Box<dyn Error + Send + Sync>>> =
+            tokio::spawn(Self::background_update(
+                pub_key, priv_key, ticker, book_clone,
+            ));
+
+        return Ok(handle);
     }
 
     async fn background_update(
-        pub_key: String, 
-        priv_key: String, 
-        ticker: String, 
-        book: Arc<Mutex<KalshiOrderbook>>
-    ) -> Result<(), Box<dyn Error + Send + Sync>>{
+        pub_key: String,
+        priv_key: String,
+        ticker: String,
+        book: Arc<Mutex<KalshiOrderbook>>,
+    ) -> Result<(), Box<dyn Error + Send + Sync>> {
         let priv_key = PKey::private_key_from_pem(priv_key.as_bytes())?;
         let client = KalshiWebsocketClient::new(Environment::Prod);
         client.connect(pub_key.as_str(), priv_key).await?;
@@ -70,21 +71,17 @@ impl ConnectedOrderbook {
                     println!("{other:?}");
                 }
             }
-
         }
 
-        return Ok(())
-            
+        return Ok(());
     }
 
-    pub fn print_book(&self){
-
-    }
+    pub fn print_book(&self) {}
 }
 
 impl std::fmt::Debug for ConnectedOrderbook {
     fn fmt(&self, _: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
         println!("{:?}", self.book);
-        return Ok(())
+        return Ok(());
     }
 }

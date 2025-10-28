@@ -22,7 +22,6 @@ async fn main() {
     let response = client.get_request(path, params, "").await.unwrap();
     let text = response.text().await.unwrap();
     let json_format = serde_json::Value::from(text);
-    
-    println!("{:?}", json_format);
 
+    println!("{:?}", json_format);
 }

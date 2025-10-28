@@ -34,7 +34,9 @@ impl KalshiSocketMessage {
         }
     }
 
-    fn from_textual_message(s: String) -> Result<KalshiSocketMessage, Box<dyn Error + Send + Sync>> {
+    fn from_textual_message(
+        s: String,
+    ) -> Result<KalshiSocketMessage, Box<dyn Error + Send + Sync>> {
         let msg_type = determine_type(&s.clone()).ok_or("could not determine message type")?;
         let socket_message = match msg_type.as_str() {
             "subscribed" => {

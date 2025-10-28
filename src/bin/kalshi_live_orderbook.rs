@@ -9,11 +9,8 @@ async fn main() {
     let pub_key = fs::read_to_string("keys/kalshi-key-pub.pem").unwrap();
     let priv_key = fs::read_to_string("keys/kalshi-key.pem").unwrap();
 
-    let conn_book = ConnectedOrderbook::new(
-        ticker.as_str(), 
-        pub_key.as_str(), 
-        priv_key.as_str()
-    ).unwrap();
+    let conn_book =
+        ConnectedOrderbook::new(ticker.as_str(), pub_key.as_str(), priv_key.as_str()).unwrap();
 
     conn_book.listen().unwrap();
 

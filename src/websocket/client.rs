@@ -75,7 +75,9 @@ impl KalshiWebsocketClient {
     }
 
     // TODO: does the reader actually need to be behind Mutex??
-    pub async fn next_message(&self) -> Option<Result<KalshiSocketMessage, Box<dyn Error + Send+ Sync>>> {
+    pub async fn next_message(
+        &self,
+    ) -> Option<Result<KalshiSocketMessage, Box<dyn Error + Send + Sync>>> {
         let mut lock = self.receiver.lock().await;
         let next = lock.as_mut().unwrap().next().await?;
         match next {
