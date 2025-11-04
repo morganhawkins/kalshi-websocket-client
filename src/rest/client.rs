@@ -9,6 +9,10 @@ use openssl::rsa::Padding;
 use openssl::sign::{RsaPssSaltlen, Signer};
 use reqwest::{self, RequestBuilder};
 
+use crate::rest::message::rest_response;
+
+use super::message::rest_response::RestResponse;
+
 pub struct RestClient<'a> {
     uri: String,
     signer: RefCell<Signer<'a>>,
@@ -30,7 +34,6 @@ impl RestClient<'_> {
         signer.set_rsa_mgf1_md(MessageDigest::sha256())?;
         signer.set_rsa_pss_saltlen(RsaPssSaltlen::DIGEST_LENGTH)?;
         // base requests
-        let client = reqwest::Client::new();
 
         Ok(Self {
             uri: base_uri.into(),
@@ -45,15 +48,20 @@ impl RestClient<'_> {
         path: &str,
         params: Vec<(&str, &str)>,
         body: impl Into<String>,
-    ) -> Result<reqwest::Response, Box<dyn Error>> {
+    ) -> Result<RestResponse, Box<dyn Error>> {
+        // format & send request
         let response = self
             .base_get_request(path)?
             .query(&params)
             .body(body.into())
             .send()
             .await?;
+        // construct expected crate struct from response
+        let rest_response = RestResponse::from_reqwest_response(response);
 
-        Ok(response)
+        Ok(
+            rest_response.await
+        )
     }
 
     fn base_get_request(&self, path: &str) -> Result<RequestBuilder, Box<dyn Error>> {
