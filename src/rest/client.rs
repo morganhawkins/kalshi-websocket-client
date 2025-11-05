@@ -116,6 +116,28 @@ impl RestClient<'_> {
         }
     }
 
+    /// Gets all markets that all under the series and event tickers specified
+    /// 
+    /// # Arguements
+    /// * series_ticker - ticker of the series to grab markets for
+    /// * event_ticker - ticker of the event to grab markets for
+    /// * market_tickers - tickers of the markets to grab (comma-seperated)
+    /// * page_size - number of markets to grab per api request
+    /// * status - status of the market. One of "open", "closed", "settled"
+    /// * mve_filter - filter MVE's. One of "only", "exclude"
+    /// 
+    /// # Examples
+    /// * series ticker - "KXBTCD"
+    /// * event_ticker - "KXBTCD-25NOV0513"
+    /// * market_tickers - "KXBTCD-25NOV0513-T103499.99, KXBTCD-25NOV0513-T103249.99"
+    /// * page_size - "100"
+    /// * status - "open"
+    /// * mve_filter - "only"
+    /// 
+    /// # Returns
+    /// A MarketResponse object containing all relevant markets
+    /// 
+    /// 
     pub async fn get_markets(
         &self,
         series_ticker: Option<&str>,
@@ -142,7 +164,6 @@ impl RestClient<'_> {
         Ok(markets_response)
     }
 
-    
 }
 
 
