@@ -7,11 +7,9 @@ use openssl::hash::MessageDigest;
 use openssl::pkey::PKey;
 use openssl::rsa::Padding;
 use openssl::sign::{RsaPssSaltlen, Signer};
-use reqwest::{self, RequestBuilder};
+use reqwest::{self, RequestBuilder, Response};
 
-use crate::rest::message::rest_response;
-
-use super::message::rest_response::RestResponse;
+use crate::rest::message;
 
 pub struct RestClient<'a> {
     uri: String,
@@ -42,28 +40,7 @@ impl RestClient<'_> {
             client: reqwest::Client::new(),
         })
     }
-
-    pub async fn get_request(
-        &self,
-        path: &str,
-        params: Vec<(&str, &str)>,
-        body: impl Into<String>,
-    ) -> Result<RestResponse, Box<dyn Error>> {
-        // format & send request
-        let response = self
-            .base_get_request(path)?
-            .query(&params)
-            .body(body.into())
-            .send()
-            .await?;
-        // construct expected crate struct from response
-        let rest_response = RestResponse::from_reqwest_response(response);
-
-        Ok(
-            rest_response.await
-        )
-    }
-
+    
     fn base_get_request(&self, path: &str) -> Result<RequestBuilder, Box<dyn Error>> {
         let timestamp_num = SystemTime::now().duration_since(UNIX_EPOCH)?.as_millis();
         let timestamp = format!("{timestamp_num}");
@@ -75,15 +52,15 @@ impl RestClient<'_> {
         let encoded_signature = general_purpose::STANDARD.encode(&signature);
         // concat base endpoint and path
         let endpoint = self.uri.clone() + path;
-
+        
         let base_req = self
-            .client
-            .get(endpoint)
-            .header("Content-Type", "application/json")
-            .header("KALSHI-ACCESS-KEY", self.pub_key.clone())
-            .header("KALSHI-ACCESS-SIGNATURE", encoded_signature)
-            .header("KALSHI-ACCESS-TIMESTAMP", timestamp);
-
+        .client
+        .get(endpoint)
+        .header("Content-Type", "application/json")
+        .header("KALSHI-ACCESS-KEY", self.pub_key.clone())
+        .header("KALSHI-ACCESS-SIGNATURE", encoded_signature)
+        .header("KALSHI-ACCESS-TIMESTAMP", timestamp);
+    
         Ok(base_req)
     }
 
@@ -98,15 +75,77 @@ impl RestClient<'_> {
         let encoded_signature = general_purpose::STANDARD.encode(&signature);
         // concat base endpoint and path
         let endpoint = self.uri.clone() + path;
-
+        
         let base_req = self
-            .client
-            .post(endpoint)
-            .header("Content-Type", "application/json")
-            .header("KALSHI-ACCESS-KEY", self.pub_key.clone())
-            .header("KALSHI-ACCESS-SIGNATURE", encoded_signature)
-            .header("KALSHI-ACCESS-TIMESTAMP", timestamp);
+        .client
+        .post(endpoint)
+        .header("Content-Type", "application/json")
+        .header("KALSHI-ACCESS-KEY", self.pub_key.clone())
+        .header("KALSHI-ACCESS-SIGNATURE", encoded_signature)
+        .header("KALSHI-ACCESS-TIMESTAMP", timestamp);
 
         Ok(base_req)
     }
+
+    pub async fn get_request(
+        &self,
+        path: &str,
+        params: Vec<(&str, &str)>,
+        body: impl Into<String>,
+    ) -> Result<Response, Box<dyn Error>> {
+        // format & send request
+        let response = self
+            .base_get_request(path)?
+            .query(&params)
+            .body(body.into())
+            .send()
+            .await?;
+
+        Ok(response)
+    }
+
+    fn append_if_some <'a, 'b> (
+        v: &'a mut Vec<(&'b str, &'b str)>, 
+        arg_key: &'b str,
+        arg_value_option: Option<&'b str>,
+    ) 
+    where 'b: 'a
+    {
+        if let Some(arg_value) = arg_value_option {
+            v.push((arg_key, arg_value))
+        }
+    }
+
+    pub async fn get_markets(
+        &self,
+        series_ticker: Option<&str>,
+        event_ticker: Option<&str>,
+        page_size: Option<&str>,
+        status: Option<&str>,
+        mve_filter: Option<&str>,
+    ) -> Result<message::MarketsResponse, Box<dyn Error>> {
+        let mut params = Vec::new();
+        Self::append_if_some(&mut params,"series_ticker", series_ticker);
+        Self::append_if_some(&mut params,"event_ticker", event_ticker);
+        Self::append_if_some(&mut params,"limit", page_size);
+        Self::append_if_some(&mut params,"status", status);
+        Self::append_if_some(&mut params,"mve_filter", mve_filter);
+
+        let response = self.get_request(
+            "/trade-api/v2/markets", 
+            params, 
+            ""
+        ).await?;
+        let text = response.text().await?;
+        let markets_response: message::MarketsResponse = serde_json::from_str(&text)?;
+
+        Ok(markets_response)
+    }
+
+    
 }
+
+
+
+
+

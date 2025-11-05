@@ -42,5 +42,6 @@ impl RestResponse {
             None
         }
     }
+
 }
 
