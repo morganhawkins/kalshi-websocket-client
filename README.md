@@ -1,6 +1,6 @@
 # Quick Start
 - Generate a public private api key pair and store save in files located at 
-`<project_root>/keys/kalsh-key.pem` and `<project_root>/keys/kalsh-key.pem`
+`<project_root>/keys/kalshi-key-pub.pem` and `<project_root>/keys/kalshi-key.pem`
 
 - Next, build the binaries with the command 
     ```{Bash}
@@ -27,3 +27,11 @@
     Again, possible channels are 
     - orderbook_delta : sends an orderbook snapshot and then sends incremental changes
     - trade : send a message every time a trade is executed
+
+
+# WebSocket Client
+
+
+# Rest Client
+
+

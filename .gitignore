@@ -2,5 +2,6 @@
 /keys
 /python_examples
 .env
+.venv
 *DS_Store
 test_record.txt
