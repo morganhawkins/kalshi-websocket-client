@@ -1,5 +1,6 @@
 use std::error::Error;
 use std::time::{SystemTime, UNIX_EPOCH};
+use log;
 
 use super::message::KalshiSocketMessage;
 
@@ -128,16 +129,16 @@ impl KalshiWebsocketClient {
         let (ws_stream, response) = connect_async(request).await?;
         if let http::StatusCode::SWITCHING_PROTOCOLS = response.status() {
             // if successful, assign sender and reciever
-            println!("Authorized Websocket Connection");
-            println!("Response: {response:?}");
+            log::info!("Authorized Websocket Connection");
+            log::info!("Response: {response:?}");
             // split into sender reciever components and assign fields
             let (sender, receiver) = ws_stream.split();
             self.set_sender(sender).await;
             self.set_receiver(receiver).await;
         } else {
             // log failure and return Err Result
-            println!("Failed to Authorize Websocket Connection");
-            println!("Response: {response:?}");
+            log::info!("Failed to Authorize Websocket Connection");
+            log::info!("Response: {response:?}");
             return Err(format!("failed with status code: {:?}", response.status()).into());
         };
 

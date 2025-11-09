@@ -3,6 +3,7 @@ use std::{env, fs};
 
 #[tokio::main]
 async fn main() {
+    env_logger::init();
     let args: Vec<String> = env::args().collect();
     let ticker = &args[1];
 
@@ -15,8 +16,8 @@ async fn main() {
     conn_book.listen().unwrap();
 
     loop {
-        println!("\n\n\n\n\n\n\n\n\n\n\n\n\n");
+        println!("\n\n");
         println!("{:?}", conn_book);
-        tokio::time::sleep(tokio::time::Duration::from_millis(50)).await;
+        tokio::time::sleep(tokio::time::Duration::from_millis(1000)).await;
     }
 }

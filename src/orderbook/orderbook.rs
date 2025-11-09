@@ -107,14 +107,14 @@ impl std::fmt::Debug for KalshiOrderbook {
         for (price_idx, quantity) in self.ask_orders.iter().enumerate().rev() {
             let price = price_idx + 1;
             if *quantity != 0 {
-                println!("{price} - {quantity}");
+                println!(" {price} - {quantity}");
             }
         }
         println!("-------");
         for (price_idx, quantity) in self.bid_orders.iter().enumerate().rev() {
             let price = price_idx + 1;
             if *quantity != 0 {
-                println!("{price} - {quantity}");
+                println!(" {price} - {quantity}");
             }
         }
 

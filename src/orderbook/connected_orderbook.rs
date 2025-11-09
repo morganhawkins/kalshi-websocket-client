@@ -18,9 +18,7 @@ pub struct ConnectedOrderbook {
 impl ConnectedOrderbook {
     pub fn new(ticker: &str, pub_key: &str, priv_key: &str) -> Result<Self, Box<dyn Error>> {
         // construct private key object from private key String
-
         let book = Arc::new(Mutex::new(KalshiOrderbook::new()));
-
         Ok(ConnectedOrderbook {
             book: book,
             pub_key: pub_key.to_string(),
@@ -68,7 +66,7 @@ impl ConnectedOrderbook {
                     lock.digest_message(delta);
                 }
                 other => {
-                    println!("{other:?}");
+                    log::info!("socket message not delta or snapshot {other:?}");
                 }
             }
         }
