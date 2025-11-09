@@ -90,13 +90,13 @@ impl RestClient<'_> {
     pub async fn get_request(
         &self,
         path: &str,
-        params: Vec<(&str, &str)>,
+        params: &Vec<(&str, &str)>,
         body: impl Into<String>,
     ) -> Result<Response, Box<dyn Error>> {
         // format & send request
         let response = self
             .base_get_request(path)?
-            .query(&params)
+            .query(params)
             .body(body.into())
             .send()
             .await?;
@@ -142,29 +142,75 @@ impl RestClient<'_> {
         &self,
         series_ticker: Option<&str>,
         event_ticker: Option<&str>,
+        market_tickers: Option<&str>,
         page_size: Option<&str>,
         status: Option<&str>,
         mve_filter: Option<&str>,
     ) -> Result<message::MarketsResponse, Box<dyn Error>> {
-        let mut params = Vec::new();
-        Self::append_if_some(&mut params,"series_ticker", series_ticker);
-        Self::append_if_some(&mut params,"event_ticker", event_ticker);
-        Self::append_if_some(&mut params,"limit", page_size);
-        Self::append_if_some(&mut params,"status", status);
-        Self::append_if_some(&mut params,"mve_filter", mve_filter);
+        let mut base_params = Vec::new();
+        Self::append_if_some(&mut base_params,"series_ticker", series_ticker);
+        Self::append_if_some(&mut base_params,"event_ticker", event_ticker);
+        Self::append_if_some(&mut base_params,"tickers", market_tickers);
+        Self::append_if_some(&mut base_params,"limit", page_size);
+        Self::append_if_some(&mut base_params,"status", status);
+        Self::append_if_some(&mut base_params,"mve_filter", mve_filter);
 
-        let response = self.get_request(
-            "/trade-api/v2/markets", 
-            params, 
-            ""
-        ).await?;
-        let text = response.text().await?;
-        let markets_response: message::MarketsResponse = serde_json::from_str(&text)?;
+        let mut markets = Vec::new();
+        let cursor = RefCell::new(String::from(""));
+        let mut next_markets_response: message::MarketsResponse;
+        let mut text: String;
+        let mut response: Response;
 
-        Ok(markets_response)
+        loop {
+            let mut params = base_params.clone();
+            let cursor_clone = cursor.borrow().clone();
+            params.push(("cursor", &cursor_clone));
+            println!("{:?}", params);
+            // grabbing page of markets
+            response = self.get_request(
+                "/trade-api/v2/markets", 
+                &params, 
+                ""
+            ).await?;
+            // parsing text into objects
+            text = response.text().await?;
+            next_markets_response = serde_json::from_str(&text)?;
+            // extend list of markets, update cursor
+            markets.extend(next_markets_response.markets);
+            *cursor.borrow_mut() = next_markets_response.cursor;
+
+            if cursor.borrow().is_empty(){
+                break
+            }
+
+            println!("{}", markets.len());
+        }
+        
+        Ok(message::MarketsResponse{
+            markets: markets,
+            cursor: cursor.borrow().clone(),
+        })
+    }
+
+    fn update_add_param<'a, 'b>(
+        params: &'a mut Vec<(&'b str, &'b str)>,
+        key: &'b str,
+        value: &'b str,
+    ) 
+    where
+        'b: 'a
+    {
+        for (existing_key, existing_value) in params.iter_mut(){
+            if *existing_key == key{
+                *existing_value = value;
+                return
+            }
+        }
+        params.push((key, value))
     }
 
 }
+
 
 
 
