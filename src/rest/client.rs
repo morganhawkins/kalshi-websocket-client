@@ -9,8 +9,6 @@ use openssl::rsa::Padding;
 use openssl::sign::{RsaPssSaltlen, Signer};
 use reqwest::{self, RequestBuilder, Response};
 
-use crate::rest::message;
-
 pub struct RestClient<'a> {
     uri: String,
     signer: RefCell<Signer<'a>>,
@@ -116,7 +114,7 @@ impl RestClient<'_> {
         }
     }
 
-    fn update_add_param<'a, 'b>(
+    pub fn update_add_param<'a, 'b>(
         params: &'a mut Vec<(&'b str, &'b str)>,
         key: &'b str,
         value: &'b str,
