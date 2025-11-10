@@ -17,5 +17,5 @@ pub struct Trade {
     pub yes_price_dollars: String,
     pub no_price_dollars: String,
     pub taker_side: String,
-    pub created_time: String
+    pub created_time: String,
 }

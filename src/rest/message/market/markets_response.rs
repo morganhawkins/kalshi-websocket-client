@@ -7,7 +7,7 @@ pub struct MarketsResponse {
 }
 
 #[derive(Deserialize, Debug)]
-pub struct Market{
+pub struct Market {
     pub ticker: Option<String>,
     pub event_ticker: Option<String>,
     pub market_type: Option<String>,
@@ -71,7 +71,7 @@ pub struct Market{
 }
 
 #[derive(Deserialize, Debug)]
-pub struct MveSelectedLegs{
+pub struct MveSelectedLegs {
     pub event_ticker: String,
     pub market_ticker: String,
     pub side: String,

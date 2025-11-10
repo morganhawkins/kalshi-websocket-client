@@ -1,6 +1,6 @@
+use log;
 use std::error::Error;
 use std::time::{SystemTime, UNIX_EPOCH};
-use log;
 
 use super::message::KalshiSocketMessage;
 
