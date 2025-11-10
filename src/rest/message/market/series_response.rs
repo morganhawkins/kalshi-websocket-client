@@ -10,16 +10,16 @@ pub struct SeriesResponse{
 #[derive(Deserialize, Debug)]
 pub struct Series{
     pub ticker: String,
-    pub frequency: String,
-    pub title: String,
-    pub category: String,
-    pub tags: Vec<String>,
-    pub settlement_sources: Vec<SettlementSource>,
-    pub contract_url: String,
-    pub contract_terms_url: String,
+    pub frequency: Option<String>,
+    pub title: Option<String>,
+    pub category: Option<String>,
+    pub tags: Vec<Option<String>>,
+    pub settlement_sources: Vec<Option<SettlementSource>>,
+    pub contract_url: Option<String>,
+    pub contract_terms_url: Option<String>,
     pub product_metadata: Option<String>,
-    pub fee_type: String,
-    pub fee_multiplier: i32,
+    pub fee_type: Option<String>,
+    pub fee_multiplier: Option<i32>,
     pub additional_prohibitions: Option<Vec<String>>,
 
 }

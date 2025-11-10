@@ -7,8 +7,8 @@ pub struct ExchangeAnnoucementsResponse{
 
 #[derive(Deserialize, Debug)]
 pub struct ExchangeAnnoucement{
-    pub r#type: String, // one of "info", "warning", "error"
-    pub message: String,
-    pub delivery_time: String, // utc date time
-    pub status: String, // one of "active", "inactive"
+    pub r#type: Option<String>, // one of "info", "warning", "error"
+    pub message: Option<String>,
+    pub delivery_time: Option<String>, // utc date time
+    pub status: Option<String>, // one of "active", "inactive"
 }
