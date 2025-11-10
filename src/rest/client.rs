@@ -210,7 +210,7 @@ impl RestClient<'_> {
             cursor: cursor.borrow().clone(),
         })
     }
-
+    
     pub async fn get_exchange_announcements(
         &self
     ) -> Result<message::ExchangeAnnoucementsResponse, Box<dyn Error>>{
@@ -220,15 +220,15 @@ impl RestClient<'_> {
             &params, 
             ""
         ).await?;
-
+        
         // parsing response text into objects
         let text = response.text().await?;
         let exchange_anouncements: message::ExchangeAnnoucementsResponse = serde_json::from_str(&text)?;
-
+        
         return Ok(exchange_anouncements)
-
+        
     }
-
+    
     pub async fn get_series(
         &self,
         series_ticker: &str,
@@ -238,23 +238,82 @@ impl RestClient<'_> {
         // params.push(("series_ticker", series_ticker));
         // format path
         let path = format!("/trade-api/v2/series/{}", series_ticker);
-
+        
         let response = self.get_request(
             &path, 
             &params, 
             ""
         ).await?;
-
+        
         // parsing response text into objects
         let text = response.text().await?;
         let series: message::SeriesResponse = serde_json::from_str(&text)?;
-
+        
         return Ok(series)
-
+        
     }
-
     
-
+    pub async fn get_trades(
+        &self,
+        market_ticker: &str,
+        page_size: Option<&str>,
+        min_ts: Option<&str>,
+        max_ts: Option<&str>,
+        max_trades: Option<i32>,
+    ) -> Result<message::TradesResponse, Box<dyn Error>> {
+        let mut base_params = Vec::new();
+        Self::append_if_some(&mut base_params, "limit", page_size);
+        Self::append_if_some(&mut base_params, "min_ts", min_ts);
+        Self::append_if_some(&mut base_params, "max_ts", max_ts);
+        base_params.push(("ticker", market_ticker));
+    
+        let mut trades = Vec::new();
+        let cursor = RefCell::new(String::from(""));
+        let mut next_trades_response: message::TradesResponse;
+        let mut text: String;
+        let mut response: Response;
+    
+        loop {
+            // create params with updated cursor
+            let mut params = base_params.clone();
+            let cursor_clone = cursor.borrow().clone();
+            params.push(("cursor", &cursor_clone));
+            
+            // grabbing page of markets
+            response = self.get_request(
+                "/trade-api/v2/markets/trades", 
+                &params, 
+                ""
+            ).await?;
+            
+            // parsing text into objects
+            text = response.text().await?;
+            next_trades_response = serde_json::from_str(&text)?;
+            
+            // extend list of markets, update cursor
+            trades.extend(next_trades_response.trades);
+            *cursor.borrow_mut() = next_trades_response.cursor;
+    
+            if cursor.borrow().is_empty(){
+                // breaking loop if cursor is empty
+                break
+            } else if let Some(max) = max_trades{
+                // breaking loop if number of trades returned has exceeded
+                if trades.len() >= max as usize {
+                    break
+                }
+            }
+        }
+        
+        Ok(message::TradesResponse{
+            trades: trades,
+            cursor: cursor.borrow().clone(),
+        })
+    }
+    
+    
+    
+    
 }
 
 
