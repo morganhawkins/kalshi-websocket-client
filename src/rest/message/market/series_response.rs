@@ -1,4 +1,8 @@
+use std::error::Error;
+
 use serde::Deserialize;
+
+use crate::rest::client::RestClient;
 
 #[derive(Deserialize, Debug)]
 pub struct SeriesResponse {
@@ -25,4 +29,19 @@ pub struct Series {
 pub struct SettlementSource {
     pub name: String,
     pub url: String,
+}
+
+impl RestClient<'_> {
+    pub async fn get_series(&self, series_ticker: &str) -> Result<SeriesResponse, Box<dyn Error>> {
+        // format path
+        let path = format!("/trade-api/v2/series/{}", series_ticker);
+
+        let response = self.get_request(&path, Vec::new().as_ref(), "").await?;
+
+        // parsing response text into objects
+        let text = response.text().await?;
+        let series: SeriesResponse = serde_json::from_str(&text)?;
+
+        return Ok(series);
+    }
 }
