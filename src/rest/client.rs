@@ -9,7 +9,7 @@ use openssl::rsa::Padding;
 use openssl::sign::{RsaPssSaltlen, Signer};
 use reqwest::{self, RequestBuilder, Response};
 
-use crate::rest::message;
+use crate::rest::message::{self, exchange_anouncements_response};
 
 pub struct RestClient<'a> {
     uri: String,
@@ -116,6 +116,23 @@ impl RestClient<'_> {
         }
     }
 
+    fn update_add_param<'a, 'b>(
+        params: &'a mut Vec<(&'b str, &'b str)>,
+        key: &'b str,
+        value: &'b str,
+    ) 
+    where
+        'b: 'a
+    {
+        for (existing_key, existing_value) in params.iter_mut(){
+            if *existing_key == key{
+                *existing_value = value;
+                return
+            }
+        }
+        params.push((key, value))
+    }
+
     /// Gets all markets that all under the series and event tickers specified
     /// 
     /// # Arguements
@@ -162,28 +179,30 @@ impl RestClient<'_> {
         let mut response: Response;
 
         loop {
+            // create params with updated cursor
             let mut params = base_params.clone();
             let cursor_clone = cursor.borrow().clone();
             params.push(("cursor", &cursor_clone));
-            println!("{:?}", params);
+            
             // grabbing page of markets
             response = self.get_request(
                 "/trade-api/v2/markets", 
                 &params, 
                 ""
             ).await?;
+            
             // parsing text into objects
             text = response.text().await?;
             next_markets_response = serde_json::from_str(&text)?;
+            
             // extend list of markets, update cursor
             markets.extend(next_markets_response.markets);
             *cursor.borrow_mut() = next_markets_response.cursor;
 
+            // breaking loop if cursor is empty
             if cursor.borrow().is_empty(){
                 break
             }
-
-            println!("{}", markets.len());
         }
         
         Ok(message::MarketsResponse{
@@ -192,22 +211,25 @@ impl RestClient<'_> {
         })
     }
 
-    fn update_add_param<'a, 'b>(
-        params: &'a mut Vec<(&'b str, &'b str)>,
-        key: &'b str,
-        value: &'b str,
-    ) 
-    where
-        'b: 'a
-    {
-        for (existing_key, existing_value) in params.iter_mut(){
-            if *existing_key == key{
-                *existing_value = value;
-                return
-            }
-        }
-        params.push((key, value))
+    pub async fn get_exchange_announcements(
+        &self
+    ) -> Result<message::ExchangeAnnoucementsResponse, Box<dyn Error>>{
+        let params = Vec::new();
+        let response = self.get_request(
+                "/trade-api/v2/exchange/announcements", 
+                &params, 
+                ""
+        ).await?;
+
+        // parsing response text into objects
+        let text = response.text().await?;
+        let exchange_anouncements: message::ExchangeAnnoucementsResponse = serde_json::from_str(&text)?;
+
+        return Ok(exchange_anouncements)
+
     }
+
+    
 
 }
 
