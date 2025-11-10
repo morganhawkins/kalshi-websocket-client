@@ -9,7 +9,7 @@ use openssl::rsa::Padding;
 use openssl::sign::{RsaPssSaltlen, Signer};
 use reqwest::{self, RequestBuilder, Response};
 
-use crate::rest::message::{self, exchange_anouncements_response};
+use crate::rest::message;
 
 pub struct RestClient<'a> {
     uri: String,
@@ -216,9 +216,9 @@ impl RestClient<'_> {
     ) -> Result<message::ExchangeAnnoucementsResponse, Box<dyn Error>>{
         let params = Vec::new();
         let response = self.get_request(
-                "/trade-api/v2/exchange/announcements", 
-                &params, 
-                ""
+            "/trade-api/v2/exchange/announcements", 
+            &params, 
+            ""
         ).await?;
 
         // parsing response text into objects
@@ -226,6 +226,30 @@ impl RestClient<'_> {
         let exchange_anouncements: message::ExchangeAnnoucementsResponse = serde_json::from_str(&text)?;
 
         return Ok(exchange_anouncements)
+
+    }
+
+    pub async fn get_series(
+        &self,
+        series_ticker: &str,
+    ) -> Result<message::SeriesResponse, Box<dyn Error>>{
+        // build params vec
+        let mut params = Vec::new();
+        // params.push(("series_ticker", series_ticker));
+        // format path
+        let path = format!("/trade-api/v2/series/{}", series_ticker);
+
+        let response = self.get_request(
+            &path, 
+            &params, 
+            ""
+        ).await?;
+
+        // parsing response text into objects
+        let text = response.text().await?;
+        let series: message::SeriesResponse = serde_json::from_str(&text)?;
+
+        return Ok(series)
 
     }
 

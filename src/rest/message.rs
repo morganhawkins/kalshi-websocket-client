@@ -1,6 +1,6 @@
-pub mod rest_response;
-pub mod markets_response;
-pub mod exchange_anouncements_response;
+pub mod exchange;
+pub mod market;
 
-pub use markets_response::MarketsResponse;
-pub use exchange_anouncements_response::ExchangeAnnoucementsResponse;
+pub use exchange::ExchangeAnnoucementsResponse;
+pub use market::MarketsResponse;
+pub use market::SeriesResponse;
